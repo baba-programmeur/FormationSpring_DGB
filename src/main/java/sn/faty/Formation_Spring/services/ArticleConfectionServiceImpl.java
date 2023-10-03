@@ -1,20 +1,19 @@
 package sn.faty.Formation_Spring.services;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import sn.faty.Formation_Spring.dtos.requests.ArticleConfectionRequest;
 import sn.faty.Formation_Spring.dtos.responses.ArticleConfectionResponse;
 import sn.faty.Formation_Spring.entities.*;
+import sn.faty.Formation_Spring.exceptions.EntittyNotFoundException;
+import sn.faty.Formation_Spring.exceptions.ErrorCodes;
 import sn.faty.Formation_Spring.repositories.ArticleConfectionRepository;
 import sn.faty.Formation_Spring.repositories.CategoryRepository;
 import sn.faty.Formation_Spring.repositories.FournisseurRepository;
 import sn.faty.Formation_Spring.repositories.UniteRepository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,8 +45,6 @@ public class ArticleConfectionServiceImpl implements ArticleConfectionService{
      * @return
      */
 
-
-
     @Override
     public Article findArticleConfectionByLibelle(String libelle) {
         return null;
@@ -60,30 +57,26 @@ public class ArticleConfectionServiceImpl implements ArticleConfectionService{
     @Override
     public ArticleConfectionResponse add(ArticleConfectionRequest articleConfectionRequest) {
 
-        Unite unite= checkUniteById(articleConfectionRequest.getCategory_id());
+        Unite unite= checkUniteById(articleConfectionRequest.getUnite());
 
         Category category=checkCategoryById(articleConfectionRequest.getCategory_id());
 
-        log.debug("category {}",category);
+           log.debug("category {}",category);
 
-         ArticleConfection articleConfection= ArticleConfectionRequest.toEntity(articleConfectionRequest);
+         ArticleConfection articleConfection=ArticleConfectionRequest.toEntity(articleConfectionRequest);
 
-         return  save(articleConfectionRequest.getFournisseur_id(),articleConfection, category, unite);
+         return
+                 save(articleConfectionRequest.getFournisseur_id(),articleConfection,category,unite);
     }
-
-
     private  Category checkCategoryById(Long id){
 
         Optional<Category> categoryOptiona= categoryRepository.findById(id);
 
-        if(categoryOptiona.isEmpty()){
+          if(categoryOptiona.isEmpty()){
 
-            throw new RuntimeException("id Categorie non existant ");
-        }
-
-         Category category= categoryOptiona.get();
-
-         return   category ;
+            throw new EntittyNotFoundException("id Categorie non existant", ErrorCodes.CATEGORIE_NOT_FOUND);
+          }
+        return categoryOptiona.get();
     }
 
     private  Unite checkUniteById(Long idCategory){
@@ -92,11 +85,10 @@ public class ArticleConfectionServiceImpl implements ArticleConfectionService{
 
         if(uniteOptional.isEmpty()){
 
-            throw new RuntimeException("id Categorie non existant ");
+            throw new EntittyNotFoundException("id Unite non existant", ErrorCodes.UNITE_NOT_FOUND);
         }
 
-        Unite unite=uniteOptional.get();
-        return  unite;
+        return uniteOptional.get();
     }
 
     private ArticleConfectionResponse save(List<Long> idFournisseur, ArticleConfection articleConfection, Category category, Unite unite){
@@ -104,16 +96,14 @@ public class ArticleConfectionServiceImpl implements ArticleConfectionService{
         List<Fournisseur> fournisseurs= idFournisseur.stream().map(idFourn  -> fournisseurRepository.findById(idFourn).orElse(null))
                 .filter(fournisseur -> fournisseur != null)
                 .collect(Collectors.toList());
-        articleConfection.setCategory(category);
-        articleConfection.setUnite(unite);
-        articleConfection.setFournisseurs(fournisseurs);
+         articleConfection.setCategory(category);
+         articleConfection.setUnite(unite);
+         articleConfection.setFournisseurs(fournisseurs);
 
-        return  ArticleConfectionResponse.toDto(articleConfectionRepository.save(articleConfection));
+        return
+                ArticleConfectionResponse.toDto(articleConfectionRepository.save(articleConfection));
 
     }
-
-
-
 
     /**
      * @param id

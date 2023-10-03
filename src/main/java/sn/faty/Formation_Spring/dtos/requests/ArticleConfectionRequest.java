@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 public class ArticleConfectionRequest{
 
-
     private  String libelle ;
 
     private  double prix ;
@@ -26,13 +25,11 @@ public class ArticleConfectionRequest{
 
     //private  String reference;
 
-    private Long  category_id ;
+    private Long category_id ;
 
     private Long unite ;
 
     private List<Long> fournisseur_id ;
-
-
 
     public  static ArticleConfection toEntity(ArticleConfectionRequest articleConfectionRequest){
 

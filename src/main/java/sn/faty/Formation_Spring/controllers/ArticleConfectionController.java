@@ -1,13 +1,12 @@
 package sn.faty.Formation_Spring.controllers;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sn.faty.Formation_Spring.dtos.requests.ArticleConfectionRequest;
@@ -27,13 +26,10 @@ public class ArticleConfectionController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ArticleConfectionResponse> addArticleConfection(ArticleConfectionRequest articleConfectionRequest){
+    public ResponseEntity<ArticleConfectionResponse> addArticleConfection(@RequestBody ArticleConfectionRequest articleConfectionRequest) {
+
         return
                 new ResponseEntity<>(articleConfectionService.add(articleConfectionRequest), HttpStatus.CREATED);
 
     }
-
-
-
-
 }
